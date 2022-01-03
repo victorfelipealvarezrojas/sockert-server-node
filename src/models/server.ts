@@ -2,14 +2,14 @@ import express, { Express } from 'express';
 import { Server, createServer } from 'http';
 import path from 'path';
 import { socketClass } from './socket';
+import cors from 'cors';
 const socketio = require('socket.io');
 
-
 export class serverClass {
-    app: Express;
-    port: string | undefined;
-    server: Server;
-    io: any;
+    private app: Express;
+    private port: string | undefined;
+    private server: Server;
+    private io: any;
 
     constructor() {
         this.app = express();
@@ -21,8 +21,10 @@ export class serverClass {
     }
 
     middlewares() {
-        //desplegar directorio publico
+        //desplegar directorio publico donde tengo el HTML index.html desde el navegador
         this.app.use(express.static(path.resolve(__dirname, '../public')));
+        //cors
+        this.app.use(cors());
     }
     
     configurarSocket(){
@@ -39,6 +41,5 @@ export class serverClass {
             console.log('corriendo en el puero: ', this.port);
         });
     }
-
 
 }
