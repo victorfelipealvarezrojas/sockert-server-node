@@ -10,33 +10,38 @@ export class serverClass {
     private port: string | undefined;
     private server: Server;
     private io: any;
+    private socket:socketClass;
 
     constructor() {
         this.app = express();
+        this.app.use(cors());
         this.port = process.env.PORT;
-        //http server
         this.server = createServer(this.app);
-        //conf socket
-        this.io = socketio(this.server, {/*Configuraciones */ });
+        this.io = socketio(this.server, {
+            cors:{
+                origin:'http://localhost:3000',
+                methods: ["GET", "POST"],
+                allowedHeaders: ["my-custom-header"],
+                credentials: true
+            }
+         });
+
+        //inicializar socket
+        this.socket = new socketClass(this.io);
     }
 
     middlewares() {
-        //desplegar directorio publico donde tengo el HTML index.html desde el navegador
         this.app.use(express.static(path.resolve(__dirname, '../public')));
-        //cors
-        this.app.use(cors());
-    }
-    
-    configurarSocket(){
-        new socketClass(this.io);
+        this.app.get('/latest', (req, res) => {
+            res.json({
+                ok: true,
+                latest: this.socket.getTicketList.getLats13
+            });
+        });
     }
 
     execute() {
-        //init middlewares
         this.middlewares();
-        //ini socket
-        this.configurarSocket();
-        //ini server
         this.server.listen(this.port, () => {
             console.log('corriendo en el puero: ', this.port);
         });
